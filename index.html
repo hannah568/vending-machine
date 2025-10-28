@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Romance & Rom-Com Book Vending Machine</title>
+<style>
+    body {
+        background: radial-gradient(circle at top, #111, #000);
+        color: #fff;
+        font-family: 'Georgia', serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+        color: crimson;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 10px black;
+        text-align: center;
+    }
+
+    .machine {
+        background: #1b1b1b;
+        border: 3px solid crimson;
+        border-radius: 15px;
+        padding: 20px;
+        width: 380px;
+        text-align: center;
+        box-shadow: 0 0 25px crimson;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .book {
+        margin: 15px 0;
+        padding: 10px;
+        border: 1px solid crimson;
+        border-radius: 10px;
+        background-color: #111;
+        transition: 0.3s;
+    }
+
+    .book:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px crimson;
+    }
+
+    .book img {
+        width: 100px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 0 10px #700;
+    }
+
+    .book-title {
+        font-weight: bold;
+        margin: 8px 0 4px;
+        color: #ff6b81;
+    }
+
+    .price {
+        color: #ffb6c1;
+    }
+
+    button {
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        font-size: 1em;
+        background: crimson;
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    button:hover {
+        background: #b3003b;
+    }
+
+    #message {
+        margin-top: 15px;
+        font-style: italic;
+        color: pink;
+        min-height: 40px;
+        text-align: center;
+        font-size: 1.1em;
+        transition: 0.3s;
+    }
+
+    .book-fall {
+        position: absolute;
+        width: 120px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: -150px;
+        animation: fall 2s ease forwards;
+        z-index: 5;
+    }
+
+    @keyframes fall {
+        0% { top: -150px; opacity: 0; transform: translateX(-50%) rotate(-5deg); }
+        50% { opacity: 1; }
+        100% { top: 350px; opacity: 1; transform: translateX(-50%) rotate(5deg); }
+    }
+
+    .book-list {
+        max-height: 400px;
+        overflow-y: auto;
+        scrollbar-color: crimson #111;
+    }
+
+    .money-section {
+        margin-bottom: 10px;
+    }
+
+    .bill {
+        background: #333;
+        border: 2px solid crimson;
+        border-radius: 6px;
+        color: pink;
+        padding: 6px 12px;
+        margin: 3px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .bill:hover {
+        background: crimson;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    #currentMoney {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #ffb6c1;
+    }
+
+    #returnBtn {
+        background: #444;
+        border: 2px solid crimson;
+        color: pink;
+        font-weight: bold;
+        border-radius: 8px;
+        margin-top: 10px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    #returnBtn:hover {
+        background: crimson;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .result-area {
+        margin-top: 20px;
+        text-align: center;
+        min-height: 160px;
+        border-top: 2px solid crimson;
+        padding-top: 10px;
+    }
+
+    .purchased-book {
+        width: 120px;
+        border-radius: 10px;
+        margin-top: 10px;
+        box-shadow: 0 0 10px crimson;
+        transition: 0.5s;
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    .purchased-book.show {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Bookshelf area */
+    .bookshelf {
+        margin-top: 30px;
+        border-top: 2px solid crimson;
+        padding-top: 10px;
+        text-align: center;
+        width: 380px;
+    }
+
+    .bookshelf h2 {
+        color: #ff6b81;
+        font-size: 1.3em;
+    }
+
+    .shelf {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .shelf img {
+        width: 70px;
+        height: 100px;
+        border-radius: 6px;
+        box-shadow: 0 0 6px crimson;
+    }
+</style>
+</head>
+<body>
+<h1>Dark Romance & Rom-Com Vending Machine 💋</h1>
+
+<div class="machine">
+    <div class="money-section">
+        <div><strong>Select your bills:</strong></div>
+        <div>
+            <span class="bill" onclick="insertMoney(20)">₱20</span>
+            <span class="bill" onclick="insertMoney(100)">₱100</span>
+            <span class="bill" onclick="insertMoney(500)">₱500</span>
+            <span class="bill" onclick="insertMoney(1000)">₱1000</span>
+        </div>
+        <div id="currentMoney">Total Inserted: ₱0</div>
+        <button id="returnBtn" onclick="returnChange()">Return Change</button>
+    </div>
+
+    <div class="book-list" id="bookList"></div>
+    <div id="message"></div>
+
+    <div class="result-area">
+        <div id="resultText">Your book will appear here 📖</div>
+        <img id="purchasedBook" class="purchased-book" src="" alt="">
+    </div>
+</div>
+
+<div class="bookshelf">
+    <h2>Your Bookshelf 📚</h2>
+    <div class="shelf" id="shelf"></div>
+</div>
+
+<script>
+let currentMoney = 0;
+let ownedBooks = [];
+
+function insertMoney(amount) {
+    currentMoney += amount;
+    document.getElementById('currentMoney').textContent = `Total Inserted: ₱${currentMoney}`;
+    document.getElementById('message').textContent = "";
+}
+
+function returnChange() {
+    const message = document.getElementById('message');
+    if (currentMoney === 0) {
+        message.textContent = "No money to return 💁‍♀️";
+        return;
+    }
+    message.textContent = `Here's your change of ₱${currentMoney}, darling 💕`;
+    currentMoney = 0;
+    document.getElementById('currentMoney').textContent = `Total Inserted: ₱0`;
+}
+
+const books = [
+    // Dark Romance
+    { title: "Twilight", author: "Stephenie Meyer", price: 150, img: "https://m.media-amazon.com/images/I/71qV0E0z7tL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Fifty Shades of Grey", author: "E.L. James", price: 200, img: "https://m.media-amazon.com/images/I/81btVZVQBoL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "A Court of Thorns and Roses", author: "Sarah J. Maas", price: 180, img: "https://m.media-amazon.com/images/I/91b0C2YNSrL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Corrupt", author: "Penelope Douglas", price: 160, img: "https://m.media-amazon.com/images/I/71Hu5SHpUML._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Den of Vipers", author: "K.A. Knight", price: 190, img: "https://m.media-amazon.com/images/I/71kUZgj9tuL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Haunting Adeline", author: "H.D. Carlton", price: 210, img: "https://m.media-amazon.com/images/I/61G9Vg4gQbL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Ruthless Creatures", author: "J.T. Geissinger", price: 170, img: "https://m.media-amazon.com/images/I/71HxR6OQPLL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "It Ends With Us", author: "Colleen Hoover", price: 150, img: "https://m.media-amazon.com/images/I/71VZyYuqMXL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Credence", author: "Penelope Douglas", price: 175, img: "https://m.media-amazon.com/images/I/71Ew5eL3xwL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "The Sweetest Oblivion", author: "Danielle Lori", price: 160, img: "https://m.media-amazon.com/images/I/71xR1+6X2UL._AC_UF1000,1000_QL80_.jpg" },
+
+    // Rom-Com
+    { title: "The Love Hypothesis", author: "Ali Hazelwood", price: 140, img: "https://m.media-amazon.com/images/I/71XG+b7kxjL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "The Hating Game", author: "Sally Thorne", price: 150, img: "https://m.media-amazon.com/images/I/81M1B4RZECL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "To All the Boys I've Loved Before", author: "Jenny Han", price: 130, img: "https://m.media-amazon.com/images/I/71tf7JOT+JL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "The Kiss Quotient", author: "Helen Hoang", price: 150, img: "https://m.media-amazon.com/images/I/81MZL6R4cOL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "People We Meet on Vacation", author: "Emily Henry", price: 140, img: "https://m.media-amazon.com/images/I/81LEuDuh8yL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "The Spanish Love Deception", author: "Elena Armas", price: 155, img: "https://m.media-amazon.com/images/I/71LDVwxR0zL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Beach Read", author: "Emily Henry", price: 145, img: "https://m.media-amazon.com/images/I/81U6vXIb8CL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "The Unhoneymooners", author: "Christina Lauren", price: 150, img: "https://m.media-amazon.com/images/I/81+CeqlcKPL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "Red, White & Royal Blue", author: "Casey McQuiston", price: 160, img: "https://m.media-amazon.com/images/I/71mjbwN2SxL._AC_UF1000,1000_QL80_.jpg" },
+    { title: "The Flatshare", author: "Beth O’Leary", price: 135, img: "https://m.media-amazon.com/images/I/81G7nO0TdYL._AC_UF1000,1000_QL80_.jpg" }
+];
+
+const bookList = document.getElementById('bookList');
+books.forEach(b => {
+    const div = document.createElement('div');
+    div.classList.add('book');
+    div.innerHTML = `
+        <img src="${b.img}" alt="${b.title}">
+        <div class="book-title">${b.title}</div>
+        <div class="author">${b.author}</div>
+        <div class="price">Price: ₱${b.price}</div>
+        <button onclick="buyBook('${b.title}', ${b.price}, '${b.img}')">Buy</button>
+    `;
+    bookList.appendChild(div);
+});
+
+function buyBook(title, price, img) {
+    const message = document.getElementById('message');
+    const machine = document.querySelector('.machine');
+    const resultText = document.getElementById('resultText');
+    const purchasedBook = document.getElementById('purchasedBook');
+    const shelf = document.getElementById('shelf');
+
+    const existing = document.querySelector('.book-fall');
+    if (existing) existing.remove();
+
+    message.style.opacity = "0";
+
+    if (currentMoney < price) {
+        message.textContent = "Sorry, not enough money 💔";
+        message.style.opacity = "1";
+        return;
+    }
+
+    currentMoney -= price;
+    document.getElementById('currentMoney').textContent = `Total Inserted: ₱${currentMoney}`;
+
+    const fallingBook = document.createElement('img');
+    fallingBook.src = img;
+    fallingBook.classList.add('book-fall');
+    machine.appendChild(fallingBook);
+
+    setTimeout(() => {
+        fallingBook.remove();
+        purchasedBook.src = img;
+        purchasedBook.classList.add('show');
+        resultText.textContent = `"${title}" is yours!`;
+        message.textContent = `Enjoy reading, sweetheart 💋`;
+        message.style.opacity = "1";
+
+        // Add to bookshelf
+        const mini = document.createElement('img');
+        mini.src = img;
+        shelf.appendChild(mini);
+        ownedBooks.push(title);
+
+    }, 2000);
+}
+</script>
+</body>
+</html>
